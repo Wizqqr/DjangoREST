@@ -7,6 +7,7 @@ from .models import Director, Movie, Review
 
 @api_view(['GET', 'POST'])
 def director_list_create_api_view(request):
+    print(request.user)
     if request.method == 'GET':
         directors = Director.objects.annotate(movies_count=Count('movies'))
         serialized_data = DirectorSerializer(directors, many=True).data
