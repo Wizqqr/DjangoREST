@@ -14,6 +14,10 @@ class UserCreateSerializer(serializers.Serializer):
             return username
         raise ValidationError('User already exists')
 
+    def validate_password(self,password):
+        if len(password) < 8:
+            raise ValidationError('Password must has at least 8 characters')
+        return password
 
 class UserAuthSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)

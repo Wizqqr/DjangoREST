@@ -1,5 +1,4 @@
 import random
-from django.core.mail import send_mail
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
@@ -68,7 +67,6 @@ def send_confirmation_email(user, confirmation_code):
        </html>
        '''
     send_mail(subject, message, from_email, recipient_list, html_message=html_message)
-
 
 @api_view(['POST'])
 def registration_api_view(request):
