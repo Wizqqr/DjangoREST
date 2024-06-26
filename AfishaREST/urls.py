@@ -11,7 +11,7 @@ urlpatterns = [
     path('api/v1/reviews/', movie_views.ReviewListApiView.as_view()),
     path('api/v1/reviews/<int:id>/', movie_views.ReviewDetailApiView.as_view()),
     path('api/v1/movies/reviews/', movie_views.MovieReviewsApiView.as_view()),
-    path('api/v1/users/registration', users_views.registration_api_view),
-    path('api/v1/users/authorization', users_views.authorization_api_view),
-    path('api/v1/users/confirm', users_views.confirm_user_api_view)
+    path('api/v1/users/registration', users_views.RegistrationApiView.as_view()),
+    path('api/v1/users/authorization', users_views.AuthenficationApiView.as_view()),
+    path('api/v1/users/confirm', users_views.ConfirmApiView.as_view()),
 ]

@@ -1,5 +1,6 @@
 import random
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -68,9 +69,9 @@ def send_confirmation_email(user, confirmation_code):
        '''
     send_mail(subject, message, from_email, recipient_list, html_message=html_message)
 
-@api_view(['POST'])
-def registration_api_view(request):
-    if request.method == 'POST':
+
+class RegistrationApiView(APIView):
+    def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -87,10 +88,8 @@ def registration_api_view(request):
 
         return Response(data={'user_id': user.id}, status=status.HTTP_201_CREATED)
 
-
-@api_view(['POST'])
-def authorization_api_view(request):
-    if request.method == 'POST':
+class AuthenficationApiView(APIView):
+    def post(self, request):
         serializer = UserAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -101,12 +100,10 @@ def authorization_api_view(request):
         if user:
             token, created = Token.objects.get_or_create(user=user)
             return Response(data={'key': token.key})
-        return Response(status=status.HTTP_401_UNAUTHORIZED,
-                        data={'error': 'The user is not authorized or confirmed'})
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid username or password'})
 
-@api_view(['POST'])
-def confirm_user_api_view(request):
-    if request.method == 'POST':
+class ConfirmApiView(APIView):
+    def post(self, request):
         serializer = UserConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -125,3 +122,61 @@ def confirm_user_api_view(request):
             return Response(status=status.HTTP_200_OK, data={'message': 'User confirmed successfully'})
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid confirmation code'})
+
+# @api_view(['POST'])
+# def registration_api_view(request):
+#     if request.method == 'POST':
+#         serializer = UserCreateSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#
+#         username = serializer.validated_data.get('username')
+#         password = serializer.validated_data.get('password')
+#         email = serializer.validated_data.get('email')
+#
+#         user = User.objects.create_user(username=username, password=password, email=email, is_active=False)
+#
+#         confirmation_code = generate_confirmation_code()
+#         Profile.objects.create(user=user, confirmation_code=confirmation_code)
+#
+#         send_confirmation_email(user, confirmation_code)
+#
+#         return Response(data={'user_id': user.id}, status=status.HTTP_201_CREATED)
+
+
+# @api_view(['POST'])
+# def authorization_api_view(request):
+#     if request.method == 'POST':
+#         serializer = UserAuthSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#
+#         username = serializer.validated_data.get('username')
+#         password = serializer.validated_data.get('password')
+#
+#         user = authenticate(username=username, password=password)
+#         if user:
+#             token, created = Token.objects.get_or_create(user=user)
+#             return Response(data={'key': token.key})
+#         return Response(status=status.HTTP_401_UNAUTHORIZED,
+#                         data={'error': 'The user is not authorized or confirmed'})
+#
+# @api_view(['POST'])
+# def confirm_user_api_view(request):
+#     if request.method == 'POST':
+#         serializer = UserConfirmSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#
+#         username = serializer.validated_data.get('username')
+#         confirmation_code = serializer.validated_data.get('confirmation_code')
+#
+#         try:
+#             user = User.objects.get(username=username)
+#             profile = Profile.objects.get(user=user)
+#         except (User.DoesNotExist, Profile.DoesNotExist):
+#             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid username or confirmation code'})
+#
+#         if profile.confirmation_code == confirmation_code:
+#             user.is_active = True
+#             user.save()
+#             return Response(status=status.HTTP_200_OK, data={'message': 'User confirmed successfully'})
+#         else:
+#             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid confirmation code'})
